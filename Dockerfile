@@ -1,7 +1,9 @@
 FROM python:3.12-slim-bookworm
 
-# Install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+# Install dependencies, including Git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates git && \
+    rm -rf /var/lib/apt/lists/*  # Clean up package lists to reduce image size
 
 # Download and install uv
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
@@ -19,5 +21,8 @@ WORKDIR /app
 # Copy all application files
 COPY main.py /app/
 
-# Explicitly set the correct binary path and run main.py
+# Explicitly set Git executable path for GitPython
+ENV GIT_PYTHON_GIT_EXECUTABLE="/usr/bin/git"
+
+# Run the application
 CMD ["/root/.local/bin/uv", "run", "main.py"]
